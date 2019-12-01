@@ -8,4 +8,4 @@ Please follow these rules and naming conventions when adding your solutions:
   - jhanna_01_1.py
   - jhanna_01_2.py
   
-Do NOT upload the input data for your solution. While the solutions for everyone will be similar the input data will be different.
+- Do NOT upload the input data for your solution. While the solutions for everyone will be similar the input data will be different.
