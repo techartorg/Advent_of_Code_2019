@@ -48,27 +48,40 @@ Once you have a working computer, the first step is to restore the gravity assis
 from pathlib import Path
 
 
-if __name__ == '__main__':
-	with Path( '02_input.txt' ).open() as f:
-		str_arr = f.read()
-
-	address = str_arr.split(',')
-	address = [ int( x ) for x in address ]
+def find_program_result( data: list, d1: int, d2: int ) -> int:
+	"""
+	Finds the result of a successfull program run.
 	
-	address[1] = 12
-	address[2] = 2
+	Arguments:
+		 data {list} -- The initial state of the data in the program
+		 d1 {int} -- The value of data[ 1 ] when the program crashed.
+		 d2 {int} -- The value of data[ 2 ] when the program crashed.
+	
+	Returns:
+		 int -- The value of data[ 0 ] when the program is finished.
+	"""
 
-	for i in range(0, len(address), 4 ):
-		opcode = address[ i ]
+	data[1] = d1
+	data[2] = d2
+
+	for i in range( 0, len( data ), 4 ):
+		opcode = data[ i ]
 		if opcode == 99:
-			print(address[ 0 ] )
-			break
-		parameter_1 = address[ i + 1 ]
-		parameter_2 = address[ i + 2 ]
-		parameter_3 = address[ i + 3 ]
+			return data[ 0 ]
 
-		if opcode == 1:
-			address[ parameter_3 ] = address[ parameter_1 ] + address[ parameter_2 ]
-		elif opcode == 2:
-			address[ parameter_3 ] = address[ parameter_1 ] * address[ parameter_2 ]
+		p1 = data[ i + 1 ]
+		p2 = data[ i + 2 ]
+		p3 = data[ i + 3 ]
+
+		data[ p3 ] = data[ p1 ] + data[ p2 ] if opcode == 1 else data[ p1 ] * data[ p2 ]
+
+	return -1
+	
+
+if __name__ == '__main__':
+	with Path( '02_input.txt' ).open( ) as f:
+		data = [ int( x ) for x in f.read( ).split( ',' ) ]
+
+	result = find_program_result( data, 12, 2 )
+	print( f'The result of the program run is: {result}.' )	
 			
