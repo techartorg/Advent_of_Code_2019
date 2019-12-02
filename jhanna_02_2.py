@@ -43,14 +43,11 @@ def find_noun_and_verb( data: list, output: int ) -> int:
 		data[ 2 ] = b
 
 		for i in range(0, len( data ), 4 ):
-			opcode = data[ i ]
-			if opcode == 99 and data[ 0 ] == output:
-				return ( 100 * data[ 1 ] ) + data[ 2 ]
+			with suppress( ValueError ):
+				opcode, p1, p2, p3 = data[ i : i + 4 ]
 
-			with suppress( IndexError ):
-				p1 = data[ i + 1 ]
-				p2 = data[ i + 2 ]
-				p3 = data[ i + 3 ]
+				if opcode == 99 and data[ 0 ] == output:
+					return ( 100 * data[ 1 ] ) + data[ 2 ]
 
 				data[ p3 ] = data[ p1 ] + data[ p2 ] if opcode == 1 else data[ p1 ] * data[ p2 ]
 

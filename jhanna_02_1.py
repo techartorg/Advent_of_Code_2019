@@ -65,13 +65,9 @@ def find_program_result( data: list, d1: int, d2: int ) -> int:
 	data[2] = d2
 
 	for i in range( 0, len( data ), 4 ):
-		opcode = data[ i ]
+		opcode, p1, p2, p3 = data[ i : i + 4 ]
 		if opcode == 99:
 			return data[ 0 ]
-
-		p1 = data[ i + 1 ]
-		p2 = data[ i + 2 ]
-		p3 = data[ i + 3 ]
 
 		data[ p3 ] = data[ p1 ] + data[ p2 ] if opcode == 1 else data[ p1 ] * data[ p2 ]
 
