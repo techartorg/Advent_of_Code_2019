@@ -1,0 +1,12 @@
+REM It appears as if file operations aren't working in AMOS2 (yet?) so I had to Dim a 100 element array and paste in my input here.
+
+totalweight = 0
+For i = 0 to 99
+	weight = ( MODULEWEIGHT(i) / 3 ) - 2
+	totalweight = totalweight + weight
+Next
+
+Print totalweight
+
+weight# = 4.9
+print Int(weight#)
