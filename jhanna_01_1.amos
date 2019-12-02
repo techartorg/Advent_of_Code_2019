@@ -1,3 +1,4 @@
+Dim MODULEWEIGHT(100)
 REM It appears as if file operations aren't working in AMOS2 (yet?) so I had to Dim a 100 element array and paste in my input here.
 
 totalweight = 0
