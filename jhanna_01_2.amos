@@ -1,0 +1,19 @@
+Dim MODULEWEIGHT(100)
+REM It appears as if file operations aren't working in AMOS2 (yet?) so I had to Dim a 100 element array and paste in my input here.
+
+totalfuel = 0
+For i = 0 to 99
+	modulefuel = Int(MODULEWEIGHT(i) / 3) - 2
+	additionalfuel = modulefuel
+
+	While additionalfuel > 0
+		additionalfuel = Int(additionalfuel / 3) - 2
+		If additionalfuel > 0
+			modulefuel = modulefuel + additionalfuel		
+		End If
+	Wend
+
+	totalfuel = totalfuel + modulefuel
+Next
+
+Print totalfuel
