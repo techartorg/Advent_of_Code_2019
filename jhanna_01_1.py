@@ -21,15 +21,14 @@ The Fuel Counter-Upper needs to know the total fuel requirement. To find it, ind
 What is the sum of the fuel requirements for all of the modules on your spacecraft?
 """
 
-from math import floor
 from pathlib import Path
 
 
 if __name__ == '__main__':
 	fuel_required: int = 0
 
-	with Path( 'day_1_input.txt' ).open() as f:
+	with Path( '01_input.txt' ).open() as f:
 		for module_mass in f:
-			fuel_required += floor( int( module_mass ) / 3 ) - 2
+			fuel_required += int( module_mass ) // 3 - 2
 
 	print( f'The sum of the fuel requirements for all of the modules on your spacecraft is: {fuel_required}.' )

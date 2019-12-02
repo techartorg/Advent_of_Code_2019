@@ -11,7 +11,6 @@ The fuel required by a module of mass 100756 and its fuel is: 33583 + 11192 + 37
 What is the sum of the fuel requirements for all of the modules on your spacecraft when also taking into account the mass of the added fuel? (Calculate the fuel requirements for each module separately, then add them all up at the end.)
 """
 
-from math import floor
 from pathlib import Path
 
 
@@ -25,13 +24,13 @@ def calculate_fuel_required( input_mass: int ) -> int:
 	Returns:
 		 int -- The fuel required to lift the mass
 	"""
-	return floor( input_mass / 3 ) - 2
+	return ( input_mass // 3 ) - 2
 
 
 if __name__ == '__main__':
 	total_fuel: int = 0
 
-	with Path( 'day_1_input.txt' ).open() as f:
+	with Path( '01_input.txt' ).open() as f:
 		for module_mass in f:
 			module_fuel: int = calculate_fuel_required( int( module_mass ) )
 			
