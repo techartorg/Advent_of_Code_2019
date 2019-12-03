@@ -1,4 +1,6 @@
+from __future__ import annotations
 from collections import defaultdict
+from typing import Dict
 data = open('day_03.input').read().split('\n')
 
 
@@ -9,36 +11,22 @@ offsets = {
     'D': -1j,
 }
 
-grid = {}
-wire_01 = {}
-start = 0j
-steps = 0
-grid[start] = '0'
-wire_01[start] = steps
-for move in data[0].split(','):
-    d = move[0]
-    dist = int(move[1:])
-    for _ in range(dist):
-        steps += 1
-        start += offsets[d]
-        grid[start] = '#'
-        wire_01[start] = steps
+# So the idea is that we store the position, and the number of steps it took for a wire to get to that position
+# Each wire's steps get stored in the sub dictionary, and we can identify intersections based on having multiple
+# values in that dictionary.
+grid: Dict[complex, Dict[int, int]] = defaultdict(dict)
+for idx, wire in enumerate(data):
+    steps = 0
+    position = 0j
+    for move in wire.split(','):
+        offset = offsets[move[0]]
+        distance = int(move[1:])
+        for _ in range(distance):
+            steps += 1
+            position += offset
+            # Using setdefault because we don't want to overright a spot with a higher step count, as we care
+            # only about the first time we hit a location.
+            grid[position].setdefault(idx, steps)
 
-start = 0j
-steps = 0
-wire_02 = {}
-wire_02[start] = steps
-for move in data[1].split(','):
-    d = move[0]
-    dist = int(move[1:])
-    for _ in range(dist):
-        start += offsets[d]
-        steps += 1
-        wire_02[start] = steps
-        if grid.get(start) == '#':
-            grid[start] = 'X'
-        else:
-            grid[start] = '+'
-
-print(min(abs(p.real) + abs(p.imag) for p, v in grid.items() if v == 'X'))
-print(min(wire_01[p] + wire_02[p] for p, v in grid.items() if v == 'X'))
+print(min(abs(p.real) + abs(p.imag) for p, v in grid.items() if len(v) == 2))
+print(min(sum(v.values()) for v in grid.values() if len(v) == 2))
