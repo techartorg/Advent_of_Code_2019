@@ -20,37 +20,48 @@ Find the input noun and verb that cause the program to produce the output 196907
 
 from contextlib import suppress
 from copy import copy
+from itertools import permutations
 from pathlib import Path
 
 
+def find_noun_and_verb( data: list, output: int ) -> int:
+	"""
+	Iterates over 9900 possible permutations of values for data[ 1 ] and data[ 2 ] to find the combination
+	of noun and verb that, when run in the program, produce the value supplied for the parameter 'output'.
+	
+	Arguments:
+		 data {list} -- 
+		 output {int} -- The potential program output for which noun and verb are being searched.
+	
+	Returns:
+		 int -- noun * 100 + verb. -1 if the program is unsolvable.
+	"""
+
+	for a, b in permutations( range( 100 ), 2 ):
+		data = copy( initial_data )
+		data[ 1 ] = a
+		data[ 2 ] = b
+
+		for i in range(0, len( data ), 4 ):
+			with suppress( ValueError ):
+				opcode, p1, p2, p3 = data[ i : i + 4 ]
+
+				if opcode == 99 and data[ 0 ] == output:
+					return ( 100 * data[ 1 ] ) + data[ 2 ]
+
+				data[ p3 ] = data[ p1 ] + data[ p2 ] if opcode == 1 else data[ p1 ] * data[ p2 ]
+
+	return -1
+
+
 if __name__ == '__main__':
-	with Path( '02_input.txt' ).open() as f:
-		str_arr = f.read()
+	with Path( '02_input.txt' ).open( ) as f:
+		initial_data = [ int( x ) for x in f.read( ).split( ',' ) ]
 
-	initial_addresses = str_arr.split(',')
-	initial_addresses = [ int( x ) for x in initial_addresses ]
-		
-	for x in range(100):
-		addresses_x = copy(initial_addresses)
-		addresses_x[1] = x
-		for y in range(100):
-			addresses = copy(addresses_x)
-			addresses[2] = y
-
-			for i in range(0, len(addresses), 4 ):				
-				opcode = addresses[ i ]
-				if opcode == 99:
-					if addresses[0] == 19690720:
-						print( (100 * addresses[ 1 ]) + addresses[ 2 ])
-						quit()
-
-				with suppress( IndexError ):
-					parameter_1 = addresses[ i + 1 ]
-					parameter_2 = addresses[ i + 2 ]
-					parameter_3 = addresses[ i + 3 ]
-
-					if opcode == 1:
-						addresses[ parameter_3 ] = addresses[ parameter_1 ] + addresses[ parameter_2 ]
-					elif opcode == 2:
-						addresses[ parameter_3 ] = addresses[ parameter_1 ] * addresses[ parameter_2 ]
-			
+	OUTPUT = 19690720
+	noun_verb = find_noun_and_verb( initial_data, OUTPUT )
+	if noun_verb > -1:
+		print( f'The noun and verb that produce {OUTPUT} are {noun_verb}.' )
+	else:
+		print( f'There is no combination of noun and verb that produce the output {OUTPUT}.')
+	
