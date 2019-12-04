@@ -44,13 +44,13 @@ def possible_passwords(min_num: int, max_num: int) -> list:
 
     for num in range(min_num, max_num):
         digits = [int(x) for x in str(num)]
-        no_decrease = sorted(digits) == digits
-        has_adjacent = any(2 <= x for x in Counter(digits).values())
-        has_double = 2 in Counter(digits).values()  # For part two
-        if no_decrease and has_adjacent:
-            pwds[0] += 1
-        if no_decrease and has_double:
-            pwds[1] += 1
+        if sorted(digits) == digits
+            has_adjacent = any(2 <= x for x in Counter(digits).values())
+            has_double = 2 in Counter(digits).values()  # For part two
+            if has_adjacent:
+                pwds[0] += 1
+            if has_double:
+                pwds[1] += 1
 
     return pwds
 
