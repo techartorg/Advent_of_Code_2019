@@ -44,7 +44,7 @@ def possible_passwords(min_num: int, max_num: int) -> list:
 
     for num in range(min_num, max_num):
         digits = [int(x) for x in str(num)]
-        if sorted(digits) == digits
+        if sorted(digits) == digits:
             pwds[0] += 1 if any(2 <= x for x in Counter(digits).values()) else 0
             pwds[1] += 1 if 2 in Counter(digits).values() else 0  # For part two
 
