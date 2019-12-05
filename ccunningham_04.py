@@ -8,11 +8,12 @@ if __name__ == '__main__':
     filtered_count = 0
 
     for v in possible:
-        if ''.join(sorted(v)) == v and any(len(set(v[i:i + 2])) == 1 for i in range(len(v))):
-            possible_count += 1
+        if ''.join(sorted(v)) != v or not any(v.count(d) > 1 for d in digits):
+            continue
 
-            if any(v.count(d) == 2 for d in digits):
-                filtered_count += 1
+        possible_count += 1
+        if any(v.count(d) == 2 for d in digits):
+            filtered_count += 1
 
     print(f'Part 01: {possible_count}')
     print(f'Part 02: {filtered_count}')
