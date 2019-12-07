@@ -9,52 +9,42 @@ def coroutine(gen):
         return g
     return start
 
+two_param_operations = {
+    1: lambda a, b : a + b,
+    2: lambda a, b : a * b,
+    7: lambda a, b : int(a < b),
+    8: lambda a, b : int(a == b),
+}
+
 @coroutine
 def run_program(memory: List[int]):
     pointer_position = 0
-    used_phase = False
     while memory[pointer_position] != 99:
         opcode = f'{memory[pointer_position]:05d}'
         op = int(opcode[-2:])
-        modes = [int(c) for c in opcode[:-2]]
-        if op == 1:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            jdx = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
-            memory[memory[pointer_position+3]] = (idx + jdx)
-            pointer_position += 4
-        elif op == 2:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            jdx = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
-            memory[memory[pointer_position+3]] = (idx * jdx)
-            pointer_position += 4
-        elif op == 3:
-            memory[memory[pointer_position+1]] = yield
-            pointer_position += 2
-        elif op == 4:
-            yield memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            pointer_position += 2
-        elif op == 5:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            if idx:
-                pointer_position = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
+        modes = [int(c) for c in opcode[:-2]][::-1]
+        pointer_position += 1
+        if op in (1, 2, 7, 8): # 2 parameters, stored in a register
+            idx, jdx, register = memory[pointer_position:pointer_position+3]
+            idx = idx if modes[0] else memory[idx]
+            jdx = jdx if modes[1] else memory[jdx]
+            memory[register] = two_param_operations[op](idx, jdx)
+            pointer_position += 3
+        elif op in (3, 4):
+            register = memory[pointer_position]
+            if op == 3:
+                memory[register] = yield
+            elif op == 4:
+                yield memory[register]
+            pointer_position += 1
+        elif op in (5, 6): # Jumps
+            idx, register = memory[pointer_position:pointer_position+2]
+            idx = idx if modes[0] else memory[idx]
+            register = register if modes[1] else memory[register]
+            if (op == 5 and idx) or (op == 6 and not idx):
+                pointer_position = register
             else:
-                pointer_position += 3
-        elif op == 6:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            if not idx:
-                pointer_position = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
-            else:
-                pointer_position += 3
-        elif op == 7:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            jdx = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
-            memory[memory[pointer_position+3]] = int(idx < jdx)
-            pointer_position += 4
-        elif op == 8:
-            idx = memory[pointer_position+1] if modes[-1] else memory[memory[pointer_position+1]]
-            jdx = memory[pointer_position+2] if modes[-2] else memory[memory[pointer_position+2]]
-            memory[memory[pointer_position+3]] = int(idx == jdx)
-            pointer_position += 4
+                pointer_position += 2
         else:
             raise RuntimeError('Something went really wrong.')
 
@@ -67,7 +57,6 @@ for phases in permutations(range(5), 5):
     for idx, p in enumerate(phases):
         amplifiers[idx].send(p) # input the phase_instruction, loops to next input
         input_instruction = amplifiers[idx].send(input_instruction) # input the input_instruction, and get the output for the next stage
-
     thrust.append(input_instruction)
 print(max(thrust))
 
