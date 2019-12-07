@@ -2,6 +2,14 @@ from itertools import permutations, repeat, chain
 from collections import deque
 from typing import List
 
+def coroutine(gen):
+    def start(*args, **kwargs):
+        g = gen(*args, **kwargs)
+        next(g)
+        return g
+    return start
+
+@coroutine
 def run_program(memory: List[int]):
     pointer_position = 0
     used_phase = False
@@ -57,7 +65,6 @@ for phases in permutations(range(5), 5):
     amplifiers = [run_program(data[:]) for i in range(5)]
     input_instruction = 0
     for idx, p in enumerate(phases):
-        next(amplifiers[idx]) # Prime the amplifier, this gets us to the first input
         amplifiers[idx].send(p) # input the phase_instruction, loops to next input
         input_instruction = amplifiers[idx].send(input_instruction) # input the input_instruction, and get the output for the next stage
 
@@ -68,19 +75,20 @@ amplified_thrust = []
 for phases in permutations(range(5, 10), 5):
     amplifier_loop = deque(run_program(data[:]) for i in range(5))
     for amp, p in zip(amplifier_loop, phases): # Prime and start each amplifier with their phase input
-        next(amp)
         amp.send(p)
 
     # From here on out, we're rotating through the amplifiers, sending in the new input instruction, and then having it calculate until it hits the end.
     input_instruction = 0
-    while True:
-        amp = amplifier_loop[0]
+    while amplifier_loop:
+        amp = amplifier_loop.popleft()
         try:
-            input_instruction = amp.send(input_instruction)
-            next(amp)
+            while (v := amp.send(input_instruction)) is None:
+                pass
+            else:
+                input_instruction = v
         except StopIteration:
-            break
+            pass
         else:
-            amplifier_loop.rotate(-1) # rotation is negative, otherwise we go the wrong way, yes I did that wrong the first time.
+            amplifier_loop.append(amp)
     amplified_thrust.append(input_instruction)
 print(max(amplified_thrust))
