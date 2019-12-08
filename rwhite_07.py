@@ -35,7 +35,7 @@ def run_program(memory: List[int]):
             if op == 3:
                 memory[register] = yield
             elif op == 4:
-                yield memory[register]
+                yield register if modes[0] else memory[register]
             pointer_position += 1
         elif op in (5, 6): # Jumps
             idx, register = memory[pointer_position:pointer_position+2]
