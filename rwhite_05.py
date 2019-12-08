@@ -47,6 +47,8 @@ def run_program(memory: List[int]):
                 pointer_position += 2
         else:
             raise RuntimeError('Something went really wrong.')
+    return memory[0]
+
 
 part_01 = run_program(data[:])
 while (v := part_01.send(1)) == 0:

@@ -47,6 +47,8 @@ def run_program(memory: List[int]):
                 pointer_position += 2
         else:
             raise RuntimeError('Something went really wrong.')
+    return memory[0]
+
 
 
 data = [int(v) for v in open('day_07.input').read().split(',')]
