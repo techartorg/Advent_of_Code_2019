@@ -69,7 +69,7 @@ Run the BOOST program in sensor boost mode. What are the coordinates of the dist
 """
 
 
-def run_intcode(input_data):
+def run_intcode(input_data, input_code=None):
     op_counts = [0, 3, 3, 1, 1, 2, 2, 3, 3, 1]
     program = [int(x) for x in input_data] + [0] * 10000
     i, relative_base = 0, 0
@@ -86,7 +86,7 @@ def run_intcode(input_data):
         elif instruction == 2:
             program[base[2] + program[i + 3]] = operands[0] * operands[1]
         elif instruction == 3:
-            program[base[0] + program[i + 1]] = int(input("BOOST INPUT: "))  # 1 = Test Mode, 2 = Sensor Boost Mode
+            program[base[0] + program[i + 1]] = int(input("INPUT: ")) if input_code is None else input_code
         elif instruction == 4:
             print(operands[0])
         elif instruction == 5:
