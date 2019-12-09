@@ -1,8 +1,7 @@
-from __future__ import annotations
-import itertools
+from itertools import permutations, repeat, chain
+from collections import deque
 from functools import wraps
 from typing import List
-data = [int(v) for v in open('day_02.input').read().split(',')]
 
 def coroutine(gen):
     @wraps(gen)
@@ -52,17 +51,37 @@ def run_program(memory: List[int]):
             raise RuntimeError('Something went really wrong.')
     return memory[0]
 
-def run_with_noun_verb(memory: List[int], noun: int, verb: int):
-    memory[1] = noun
-    memory[2] = verb
-    try:
-        return run_program(memory[:])
-    except StopIteration as e:
-        return e.value
 
-print('Part 01:', run_with_noun_verb(data[:], 12, 2))
 
-for n, v in itertools.product(range(100), range(100)):
-    if run_with_noun_verb(data[:], n, v) == 19690720:
-        print(f'Part 02: {100*n + v}')
-        break
+data = [int(v) for v in open('day_07.input').read().split(',')]
+thrust = []
+for phases in permutations(range(5), 5):
+    amplifiers = [run_program(data[:]) for i in range(5)]
+    input_instruction = 0
+    for idx, p in enumerate(phases):
+        amplifiers[idx].send(p) # input the phase_instruction, loops to next input
+        input_instruction = amplifiers[idx].send(input_instruction) # input the input_instruction, and get the output for the next stage
+    thrust.append(input_instruction)
+print(max(thrust))
+
+amplified_thrust = []
+for phases in permutations(range(5, 10), 5):
+    amplifier_loop = deque(run_program(data[:]) for i in range(5))
+    for amp, p in zip(amplifier_loop, phases): # Prime and start each amplifier with their phase input
+        amp.send(p)
+
+    # From here on out, we're rotating through the amplifiers, sending in the new input instruction, and then having it calculate until it hits the end.
+    input_instruction = 0
+    while amplifier_loop:
+        amp = amplifier_loop.popleft()
+        try:
+            while (v := amp.send(input_instruction)) is None:
+                pass
+            else:
+                input_instruction = v
+        except StopIteration:
+            pass
+        else:
+            amplifier_loop.append(amp)
+    amplified_thrust.append(input_instruction)
+print(max(amplified_thrust))

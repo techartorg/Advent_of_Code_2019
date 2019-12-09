@@ -1,8 +1,7 @@
-from __future__ import annotations
-import itertools
-from functools import wraps
 from typing import List
-data = [int(v) for v in open('day_02.input').read().split(',')]
+from functools import wraps
+
+data = [int(v) for v in open('day_05.input').read().split(',')]
 
 def coroutine(gen):
     @wraps(gen)
@@ -52,17 +51,12 @@ def run_program(memory: List[int]):
             raise RuntimeError('Something went really wrong.')
     return memory[0]
 
-def run_with_noun_verb(memory: List[int], noun: int, verb: int):
-    memory[1] = noun
-    memory[2] = verb
-    try:
-        return run_program(memory[:])
-    except StopIteration as e:
-        return e.value
 
-print('Part 01:', run_with_noun_verb(data[:], 12, 2))
-
-for n, v in itertools.product(range(100), range(100)):
-    if run_with_noun_verb(data[:], n, v) == 19690720:
-        print(f'Part 02: {100*n + v}')
-        break
+part_01 = run_program(data[:])
+while (v := part_01.send(1)) == 0:
+    pass
+print(v)
+part_02 = run_program(data[:])
+while (v := part_02.send(5)) == 0:
+    pass
+print(v)
