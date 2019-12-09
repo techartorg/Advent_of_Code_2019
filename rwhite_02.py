@@ -1,9 +1,11 @@
 from __future__ import annotations
 import itertools
+from functools import wraps
 from typing import List
 data = [int(v) for v in open('day_02.input').read().split(',')]
 
 def coroutine(gen):
+    @wraps(gen)
     def start(*args, **kwargs):
         g = gen(*args, **kwargs)
         next(g)
@@ -54,7 +56,7 @@ def run_with_noun_verb(memory: List[int], noun: int, verb: int):
     memory[1] = noun
     memory[2] = verb
     try:
-        run_program(memory[:])
+        return run_program(memory[:])
     except StopIteration as e:
         return e.value
 

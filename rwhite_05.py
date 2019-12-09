@@ -1,8 +1,10 @@
 from typing import List
+from functools import wraps
 
 data = [int(v) for v in open('day_05.input').read().split(',')]
 
 def coroutine(gen):
+    @wraps(gen)
     def start(*args, **kwargs):
         g = gen(*args, **kwargs)
         next(g)

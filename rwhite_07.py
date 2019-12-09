@@ -1,8 +1,10 @@
 from itertools import permutations, repeat, chain
 from collections import deque
+from functools import wraps
 from typing import List
 
 def coroutine(gen):
+    @wraps(gen)
     def start(*args, **kwargs):
         g = gen(*args, **kwargs)
         next(g)
