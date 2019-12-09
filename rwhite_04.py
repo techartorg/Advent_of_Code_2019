@@ -1,6 +1,7 @@
 from string import digits
 from typing import Iterable
-possible_passwords: Iterable[str] = (str(v) for v in range(138241, 674034))
+data = [int(v) for v in open('day_04.input').read().split()]
+possible_passwords: Iterable[str] = (str(v) for v in range(*data))
 possible_passwords = [v for v in possible_passwords
                         if ''.join(sorted(v)) == v
                         and any(v.count(d) > 1 for d in digits)]
