@@ -26,41 +26,32 @@ from collections import Counter
 
 def find_layer( width: int, height: int, raw_data: str ) -> int:
 	"""
-	[summary]
-	
+	Finds the value of the number of 1s multiplied by the number of 2s on the layer with the lowest number of 0 values.
+
 	Arguments:
-		 width {int} -- [description]
-		 height {int} -- [description]
-		 raw_data {str} -- [description]
-	
+		 width {int} -- The pixel width of the image
+		 height {int} -- The pixel height of the image
+		 raw_data {str} -- The raw, non-delimited, pixel data.
+
 	Returns:
-		 int -- [description]
+		 int -- The value of the number of 1s multiplied by the number of 2s on the layer with the lowest number of 0 values.
 	"""
 
 	pixel_count: int = width * height
-	layer_count: int = len( raw_data ) // pixel_count
-	layer_idx: int = 0
 	layers = [ ]
 
 	for i in range( 0, len( raw_data ), pixel_count ):
 		pixel_data = raw_data[ i: i + pixel_count ]
-		
-		try:
-			layer = layers[ layer_idx ]
-			layer.update( pixel_data )
-		except IndexError:
-			layer = Counter( pixel_data )
-			layers.append( layer )
 
-		layer_idx += 1
-		if layer_idx > layer_count - 1:
-			layer_idx = 0
+		layer = Counter( pixel_data )
+		layers.append( layer )
 
 	lowest_0s_count = pixel_count + 1
 	lowest_0s_layer = None
 	for layer in layers:
 		val = layer.get( '0' ) or 0
 		if val < lowest_0s_count:
+			lowest_0s_count = val
 			lowest_0s_layer = layer
 
 	return lowest_0s_layer.get( '1' ) * lowest_0s_layer.get( '2' )
@@ -73,4 +64,3 @@ if __name__ == '__main__':
 	layer_idx: int = find_layer( 25, 6, raw_data )
 
 	print( f'The 1s count multiplied by the 2s count on the layer with the lowest count of 0s is: {layer_idx}' )
-		
