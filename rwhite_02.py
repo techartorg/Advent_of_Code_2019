@@ -1,7 +1,9 @@
-from __future__ import annotations
 import itertools
 from functools import wraps
 from typing import List
+from operator import add, mul, lt, eq
+
+
 data = [int(v) for v in open('day_02.input').read().split(',')]
 
 def coroutine(gen):
@@ -13,10 +15,10 @@ def coroutine(gen):
     return start
 
 two_param_operations = {
-    1: lambda a, b : a + b,
-    2: lambda a, b : a * b,
-    7: lambda a, b : int(a < b),
-    8: lambda a, b : int(a == b),
+    1: add,
+    2: mul,
+    7: lt,
+    8: eq,
 }
 
 @coroutine

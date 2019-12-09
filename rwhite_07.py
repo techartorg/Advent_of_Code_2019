@@ -1,4 +1,5 @@
-from itertools import permutations, repeat, chain
+from itertools import permutations
+from operator import add, mul, lt, eq
 from collections import deque
 from functools import wraps
 from typing import List
@@ -12,10 +13,10 @@ def coroutine(gen):
     return start
 
 two_param_operations = {
-    1: lambda a, b : a + b,
-    2: lambda a, b : a * b,
-    7: lambda a, b : int(a < b),
-    8: lambda a, b : int(a == b),
+    1: add,
+    2: mul,
+    7: lt,
+    8: eq,
 }
 
 @coroutine
