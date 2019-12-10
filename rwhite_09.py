@@ -1,8 +1,7 @@
-from itertools import permutations
 from operator import add, mul, lt, eq
-from collections import deque
+from collections import defaultdict
 from functools import wraps
-from typing import List
+from typing import List, Dict
 
 def coroutine(gen):
     @wraps(gen)
@@ -12,72 +11,58 @@ def coroutine(gen):
         return g
     return start
 
-two_param_operations = {
-    1: add,
-    2: mul,
-    7: lt,
-    8: eq,
-}
-
-def get_value(memory, pntr, mode, relative_base):
-    if mode == 0:
-        return memory[pntr]
-    if mode == 1:
-        return pntr
-    if mode == 2:
-        return memory[pntr+relative_base]
-
 # @coroutine
-def run_program(memory: List[int]):
-    memory.extend(0 for _ in range(10000))
+def run_program(state: List[int]):
+    def get_value(pntr, mode):
+        if mode == 0:
+            return memory[pntr]
+        if mode == 1:
+            return pntr
+        if mode == 2:
+            return memory[pntr+relative_base]
+
+    two_param_operations = {
+        1: add,
+        2: mul,
+        7: lt,
+        8: eq,
+    }
+
     pointer_position = 0
     relative_base = 0
+    op_params = (0, 3, 3, 1, 1, 2, 2, 3, 3, 1)
+    memory: Dict[int, int] = defaultdict(int) # Keeps me from guessing as to how much memory expansion I need to do.
+    memory.update(enumerate(state)) # Fastest way to convert a list into a dictionary and keep the indicies in order.
     while memory[pointer_position] != 99:
+        # Get the current opcode, and storage location
         opcode = f'{memory[pointer_position]:05d}'
         op = int(opcode[-2:])
         modes = [int(c) for c in opcode[:-2]][::-1]
+        param_count = op_params[op]
+        storage_position = memory[pointer_position+param_count] if modes[param_count-1] == 0 else memory[pointer_position+param_count] + relative_base
+        # Advance the pointer by 1 so we can start processing parameters.
         pointer_position += 1
-        if op in (1, 2, 7, 8): # 2 parameters, stored in a register
-            idx, jdx, register = memory[pointer_position:pointer_position+3]
-            idx = get_value(memory, idx, modes[0], relative_base)
-            jdx = get_value(memory, jdx, modes[1], relative_base)
-            if modes[2] == 2:
-                memory[register + relative_base] = two_param_operations[op](idx, jdx)
-            else:
-                memory[register] = two_param_operations[op](idx, jdx)
-            pointer_position += 3
-        elif op in (3, 4, 9):
-            register = memory[pointer_position]
-            if op == 3:
-                if modes[0] == 0:
-                    memory[register] = yield
-                elif modes[0] == 1:
-                    memory[pointer_position] = yield
-                elif modes[0] == 2:
-                    memory[register + relative_base] = yield
-            elif op == 4:
-                yield get_value(memory, register, modes[0], relative_base)
-            elif op == 9:
-                relative_base += get_value(memory, register, modes[0], relative_base)
-            pointer_position += 1
-        elif op in (5, 6): # Jumps
-            idx, jdx = memory[pointer_position:pointer_position+2]
-            idx = get_value(memory, idx, modes[0], relative_base)
-            jdx = get_value(memory, jdx, modes[1], relative_base)
-            if (op == 5 and idx) or (op == 6 and not idx):
-                pointer_position = jdx
-            else:
-                pointer_position += 2
-        else:
-            raise RuntimeError('Something went really wrong.')
+        parameters = [get_value(memory[idx], mode) for idx, mode in zip(range(pointer_position, pointer_position+param_count), modes)]
+        if op in (1, 2, 7, 8): # 2 parameters
+            memory[storage_position] = int(two_param_operations[op](parameters[0], parameters[1]))
+        elif op == 3: # input
+            memory[storage_position] = yield
+        elif op == 4: # output
+            yield parameters[0]
+        elif op == 9: # update offset
+            relative_base += parameters[0]
+        elif (op == 5 and parameters[0]) or (op == 6 and not parameters[0]): # Jumps
+            pointer_position = parameters[1]
+            continue # We want to avoid incrementing the pointer position because we did a jump
+        pointer_position += param_count
     return memory[0]
 
 data = [int(v) for v in open('day_09.input').read().split(',')]
-assert [v for v in run_program([109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99][:])] == [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
-assert [len(str(v)) for v in run_program([1102,34915192,34915192,7,4,7,99,0][:])] == [16]
-assert [v for v in run_program([104,1125899906842624,99][:])] == [1125899906842624]
+assert [v for v in run_program([109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99])] == [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
+assert [len(str(v)) for v in run_program([1102,34915192,34915192,7,4,7,99,0])] == [16]
+assert [v for v in run_program([104,1125899906842624,99])] == [1125899906842624]
 
-boost = coroutine(run_program)(data[:])
+boost = coroutine(run_program)(data)
 print(boost.send(1))
-boost = coroutine(run_program)(data[:])
+boost = coroutine(run_program)(data)
 print(boost.send(2))
