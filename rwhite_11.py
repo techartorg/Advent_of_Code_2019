@@ -55,7 +55,7 @@ def run_program(state: List[int]):
         elif (op == 5 and parameters[0]) or (op == 6 and not parameters[0]): # Jumps
             pointer_position = parameters[1]
             continue # We want to avoid incrementing the pointer position because we did a jump
-        pointer_position += param_count
+        pointer_position += param_count # Advance pointer to next opcode
     return memory[0]
 
 data = [int(v) for v in open('day_11.input').read().split(',')]
@@ -80,6 +80,7 @@ def run_robot(data: List[int], start_val=0) -> Dict[complex, int]:
 print(len(run_robot(data[:])))
 
 grid = run_robot(data[:], 1)
-xmin, *_, xmax = sorted(v.real for v in grid)
-ymin, *_, ymax = sorted(abs(v.imag) for v in grid)
-print('\n'.join(''.join('#' if grid[x - 1j *y] else ' ' for x in range(int(xmin-1), int(xmax+2))) for y in range(int(ymin-1), int(ymax+2))))
+xmin, *_, xmax = sorted(int(v.real) for v in grid)
+ymin, *_, ymax = sorted(int(abs(v.imag)) for v in grid)
+# Need to padd out the grid, otherwise you chop off the bottom part and get confused
+print('\n'.join(''.join('#' if grid[x - 1j *y] else ' ' for x in range(xmin-1, xmax+2)) for y in range(ymin-1, ymax+2)))
