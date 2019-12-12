@@ -315,8 +315,3 @@ if __name__ == "__main__":
 
     print("Part One:", calc_total_energy(moon_vectors, 1000))
     print("Part Two:", calc_num_efficiency_steps(moon_vectors))
-
-
-
-
-
