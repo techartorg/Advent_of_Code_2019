@@ -3,9 +3,9 @@ from operator import add, mul, lt, eq
 from collections import defaultdict
 from functools import wraps
 from typing import List, Dict, Tuple
+from rwhite_intcode import Intcode, WAITING_FOR_INPUT
 
-
-WAITING_FOR_INPUT = object()
+# WAITING_FOR_INPUT = object()
 def coroutine(gen):
     @wraps(gen)
     def start(*args, **kwargs):
@@ -67,7 +67,7 @@ data = [int(v) for v in open('day_13.input').read().split(',')]
 
 def run_game(data: List[int]):
     grid: Dict[Tuple[int, int], int] = defaultdict(int)
-    game = list(run_program(data[:]))
+    game = Intcode(data[:]).run_until_input()
     screen = [game[i:i+3] for i in range(0, len(game), 3)]
     for x, y, typ in screen:
         grid[(x, y)] = typ
@@ -77,38 +77,34 @@ print(list(grid.values()).count(2))
 
 def free_play(data: List[int]):
     data[0] = 2
-    game = run_program(data[:])
+    game = Intcode(data[:])
     ball_pos = (0, 0)
     padd_pos = (0, 0)
-    icons = (' ', '#', '*', '_', '.')
-    state = [next(game)]
+    state: List[int] = []
     grid: Dict[Tuple[int, int], int] = defaultdict(int)
     while True:
-        try:
-            if ball_pos[0] < padd_pos[0]:
-                move = -1
-            elif ball_pos[0] > padd_pos[0]:
-                move = 1
-            else:
-                move = 0
+        if ball_pos[0] < padd_pos[0]:
+            move = -1
+        elif ball_pos[0] > padd_pos[0]:
+            move = 1
+        else:
+            move = 0
 
-            while (v := game.send(move)) != WAITING_FOR_INPUT:
-                state.append(v)
-
-            coords = [state[i:i+3] for i in range(0, len(state), 3)]
-            for idx in range(0, len(state), 3):
-                x, y, typ = state[idx:idx+3]
-                if x == -1:
-                    continue
-                elif typ == 4:
-                    ball_pos = (x, y)
-                elif typ == 3:
-                    padd_pos = (x, y)
-                grid[x, y] = typ
-
-
-            state.clear()
-        except StopIteration:
+        new_state = game.run_until_input(move)
+        if None in new_state:
             break
+        state[:] = new_state
+
+        coords = [state[i:i+3] for i in range(0, len(state), 3)]
+        for idx in range(0, len(state), 3):
+            x, y, typ = state[idx:idx+3]
+            if x == -1:
+                continue
+            elif typ == 4:
+                ball_pos = (x, y)
+            elif typ == 3:
+                padd_pos = (x, y)
+            grid[x, y] = typ
     return state[-1]
+
 print(free_play(data[:]))

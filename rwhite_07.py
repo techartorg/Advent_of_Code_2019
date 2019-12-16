@@ -3,6 +3,7 @@ from operator import add, mul, lt, eq
 from collections import deque, defaultdict
 from functools import wraps
 from typing import List, Dict
+from rwhite_intcode import Intcode, WAITING_FOR_INPUT
 
 
 def coroutine(gen):
@@ -63,9 +64,10 @@ def run_program(state: List[int]):
 data = [int(v) for v in open('day_07.input').read().split(',')]
 thrust = []
 for phases in permutations(range(5), 5):
-    amplifiers = [run_program(data[:]) for i in range(5)]
+    amplifiers = [Intcode(data[:]) for i in range(5)]
     input_instruction = 0
     for idx, p in enumerate(phases):
+        amplifiers[idx].run_until_input()
         amplifiers[idx].send(p) # input the phase_instruction, loops to next input
         input_instruction = amplifiers[idx].send(input_instruction) # input the input_instruction, and get the output for the next stage
     thrust.append(input_instruction)
@@ -73,8 +75,9 @@ print(max(thrust))
 
 amplified_thrust = []
 for phases in permutations(range(5, 10), 5):
-    amplifier_loop = deque(run_program(data[:]) for i in range(5))
+    amplifier_loop = deque(Intcode(data[:]) for i in range(5))
     for amp, p in zip(amplifier_loop, phases): # Prime and start each amplifier with their phase input
+        amp.run_until_input()
         amp.send(p)
 
     # From here on out, we're rotating through the amplifiers, sending in the new input instruction, and then having it calculate until it hits the end.
@@ -82,10 +85,9 @@ for phases in permutations(range(5, 10), 5):
     while amplifier_loop:
         amp = amplifier_loop.popleft()
         try:
-            while (v := amp.send(input_instruction)) is None:
-                pass
-            else:
-                input_instruction = v
+            if (v := amp.send(input_instruction)) is WAITING_FOR_INPUT:
+                v = amp.send(input_instruction)
+            input_instruction = v
         except StopIteration:
             pass
         else:
