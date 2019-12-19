@@ -70,6 +70,11 @@ class Intcode:
     def send(self, val):
         return self._program.send(val)
 
+    def send_multiple(self, *vals):
+        for v in vals:
+            if (x := self.send(v)) != WAITING_FOR_INPUT:
+                return x
+
     def throw(self, exc, value=None, traceback=None):
         return self._program.throw(exc, value, traceback)
 
