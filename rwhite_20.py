@@ -95,10 +95,11 @@ try:
         if (x, y, depth) in seen:
             continue
         seen.add((x, y, depth))
+        steps += 1
         for (dx, dy), dd in graph[(x, y)]:
             if portals.get((x, y), [''])[0] == 'ZZ' and depth == 0:
                 raise RuntimeError()
             if (new_depth := dd + depth) >= 0: # have to go deeper before we can use the outside ring again
-                heapq.heappush(queue2, (steps+1, new_depth, (dx, dy)))
+                heapq.heappush(queue2, (steps, new_depth, (dx, dy)))
 except RuntimeError:
-    print(steps+1)
+    print(steps)
