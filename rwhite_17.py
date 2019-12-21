@@ -66,23 +66,11 @@ move_data = data[:]
 assert move_data[0] == 1 and c.memory[0] == 1
 move_data[0] = 2
 c = Intcode(move_data[:])
-print(''.join(chr(v) for v in c.run_until_input(10)))
-for v in main:
-    c.send(ord(v))
-print(''.join(chr(v) for v in c.run_until_input(10)))
-for v in ma:
-    c.send(ord(v))
-print(''.join(chr(v) for v in c.run_until_input(10)))
-for v in mb:
-    c.send(ord(v))
-print(''.join(chr(v) for v in c.run_until_input(10)))
-for v in mc:
-    c.send(ord(v))
-print(''.join(chr(v) for v in c.run_until_input(10)))
-print(c.send(ord('n'))) # I don't need the video feed
-out = c.run_until_input(10) # Final output however is one last shot of the video feed, and then the amount of dust
-# print(''.join(chr(v) for v in out)) # This would print out the last video feed screen
+c.run_until_input()
+print(''.join(chr(v) for v in c.send_ascii(main)))
+print(''.join(chr(v) for v in c.send_ascii(ma)))
+print(''.join(chr(v) for v in c.send_ascii(mb)))
+print(''.join(chr(v) for v in c.send_ascii(mc)))
+out = c.send_ascii('n') # I don't need the video feed
+# print(''.join(chr(v) for v in out[:-1])) # This would print out the last video feed screen
 print(out[-1])
-# print(c.send(ord('\n')))
-
-# print(c.run_until_input())

@@ -87,3 +87,7 @@ class Intcode:
             if not ret:
                 return [e.value]
         return ret
+
+    def send_ascii(self, cmd_string):
+        v = self.send_multiple(*[ord(c) for c in cmd_string])
+        return self.run_until_input(ord('\n'))
