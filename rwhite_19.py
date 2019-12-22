@@ -39,6 +39,6 @@ for i in count(100):
         if is_valid(i, j):
             start = j
             break
-    if is_valid(i-99, j) and is_valid(i-99, j+99) and is_valid(i, j+99) and is_valid(i, j):
+    if is_valid(i-99, j+99) and is_valid(i, j):
         break
 print((i-99)*10_000 + j)
