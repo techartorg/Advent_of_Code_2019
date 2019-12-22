@@ -18,6 +18,8 @@ def process_deck(cards):
             increment = int(line.split()[-1])
             deck.rotate(-increment)
     return deck
+
+# Can actually replace this with my shuffle_card function from part 2, which should be faster as it just reduces to maths
 print(process_deck(range(10007)).index(2019))
 
 # So part 2 is going to be super math heavy.
@@ -62,4 +64,5 @@ card_index = CARD_INDEX
 # derive all future values for that index. Because of the pseudorandom nature, any index will do, but might as well stick with
 # the puzzle's constant.
 mod, mul, inc = get_mod_mul_inc(*[(card_index := shuffle_card(data, DECK_SIZE, card_index)) for i in range(3)], DECK_SIZE)
+print(shuffle_card(data, 10007, 2019))
 print(super_shuffle(mul, inc, mod, CARD_INDEX, DECK_SIZE - SHUFFLES - 1))
