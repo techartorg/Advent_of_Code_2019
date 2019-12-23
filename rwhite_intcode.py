@@ -71,9 +71,12 @@ class Intcode:
         return self._program.send(val)
 
     def send_multiple(self, *vals):
+        ret = []
         for v in vals:
             if (x := self.send(v)) != WAITING_FOR_INPUT:
-                return x
+                ret.append(x)
+        return ret
+
 
     def throw(self, exc, value=None, traceback=None):
         return self._program.throw(exc, value, traceback)
