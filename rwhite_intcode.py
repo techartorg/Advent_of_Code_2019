@@ -94,3 +94,9 @@ class Intcode:
     def send_ascii(self, cmd_string):
         v = self.send_multiple(*[ord(c) for c in cmd_string])
         return self.run_until_input(ord('\n'))
+
+
+class Ascii(Intcode):
+
+    def run_until_input(self, *args, **kwargs):
+        print(''.join(chr(c) for c in super().run_until_input(*args, **kwargs)))
