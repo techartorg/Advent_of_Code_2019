@@ -33,7 +33,6 @@ for v in lines.values():
 ordered = sorted(lines.items(), key=lambda x: x[0], reverse=True) # Ordering based on the rotation angle
 assert len(ordered) >= 200 # If its less than 200, I probably have to do more work rotating through all of these instead of just looping until this works.
 for idx, (angle, point) in enumerate(ordered, 1):
-    print(idx, angle, point)
     if idx == 200:
         x, y = point[0]
         print(x*100 + y)
